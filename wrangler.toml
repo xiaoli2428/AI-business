@@ -1,0 +1,10 @@
+name = "build-apps-ai"
+type = "javascript"
+account_id = "your_account_id"
+workers_dev = true
+route = "buildappsai.com/*"
+zone_id = "your_zone_id"
+
+[env.production]
+name = "build-apps-ai-prod"
+route = "buildappsai.com/*"
