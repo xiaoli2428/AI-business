@@ -1,0 +1,12 @@
+{
+  "name": "ai-business-builder",
+  "version": "1.0.0",
+  "description": "Autonomous AI model for building business apps without user input",
+  "main": "ai-model.js",
+  "scripts": {
+    "start": "node ai-model.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0"
+  }
+}
