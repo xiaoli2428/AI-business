@@ -1,4 +1,9 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const fs = require('fs');
+const path = require('path');
+
+// Read the HTML file at build time
+const indexHTML = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
 
 export default {
   async fetch(request, env) {
@@ -6,6 +11,13 @@ export default {
     const client = new Anthropic({
       apiKey: env.ANTHROPIC_API_KEY
     });
+
+    // Serve the HTML landing page for root path
+    if (url.pathname === '/' || url.pathname === '/index.html') {
+      return new Response(indexHTML, {
+        headers: { 'Content-Type': 'text/html' }
+      });
+    }
 
     if (url.pathname === '/api/build') {
       const { requirements } = await request.json();
