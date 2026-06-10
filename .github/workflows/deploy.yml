@@ -1,0 +1,56 @@
+name: Deploy AI-Business to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run pre-deploy checks
+        run: |
+          echo "Checking required files..."
+          test -f worker.js       || (echo "Missing worker.js" && exit 1)
+          test -f ai-model.js     || (echo "Missing ai-model.js" && exit 1)
+          test -f wrangler.toml   || (echo "Missing wrangler.toml" && exit 1)
+          echo "All required files present."
+
+      - name: Deploy to Cloudflare Workers (production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          environment: production
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment complete. Verifying live endpoint..."
+          sleep 10
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://buildappsai.com)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "✅ buildappsai.com is live and responding."
+          else
+            echo "⚠️ Site returned status $STATUS — check Cloudflare dashboard."
+            exit 1
+          fi
