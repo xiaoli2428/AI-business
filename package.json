@@ -11,3 +11,8 @@
     "@vercel/speed-insights": "^2.0.0"
   }
 }
+npm install next react react-dom
+# then commit the updated package.json and package-lock.json
+git add package.json package-lock.json
+git commit -m "fix: add next.js as dependency"
+git push
